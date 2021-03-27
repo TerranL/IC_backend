@@ -7,7 +7,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 
 class Profile(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    #id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to='profile_pic/', null=True, blank=True,
                                default="")
@@ -19,7 +19,7 @@ class Profile(models.Model):
     """
 
 class Friend(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    #id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friends")
     
@@ -35,7 +35,7 @@ class Challenges(models.Model):
 
 class Status(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    textbox = models.TextField(max_length=100000)
+    textbox = models.TextField(max_length=100000, default="")
     image = models.ImageField(upload_to='status', null=True, blank=True)
 
 class Categories(models.Model):
