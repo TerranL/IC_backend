@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -118,13 +119,17 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'assets/')
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+#    'DEFAULT_AUTHENTICATION_CLASSES': [
+#        'rest_framework_simplejwt.authentication.JWTAuthentication',
+#    ]
 }
 
 AUTH_USER_MODEL = 'api.User'
