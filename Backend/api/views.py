@@ -1,16 +1,8 @@
 from django.shortcuts import render
 
 # Create your views here.
-from django.http.response import JsonResponse
-from rest_framework.parsers import JSONParser
-from rest_framework import status, generics, decorators
-from .models import PreProcessedFiles
-from .serializer import PreProcessedFilesSerializer, TokenObtainPairSerializer, RegisterSerializer, ChallengesSerializer
-from .serializer import UserDescriptionSerializer
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .serializer import ChallengesSerializer
 from django.contrib.auth.models import User
 from django.db.models import Count
 from rest_framework.exceptions import ValidationError
@@ -25,12 +17,12 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-
 # models
-from Backend.api.models import Challenges
+from .models import Challenges
 
 PAGINATION_COUNT = 3
 STATUS = {-2: "declined", -1: "failed", 0: "pending", 1: "ongoing", 2: "completed"}
+
 
 # class PostListView(ListView):
 #     model = Challenges
@@ -65,7 +57,6 @@ STATUS = {-2: "declined", -1: "failed", 0: "pending", 1: "ongoing", 2: "complete
 #         for obj in qs:
 #             follows.append(obj.follow_user)
 #         return Post.objects.filter(author__in=follows).order_by('-date_posted')
-
 
 
 #
