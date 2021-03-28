@@ -117,5 +117,26 @@ class FriendViewSet(ModelViewSet):
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+from .models import Challenges
+from .serializers import ChallengesSerializer
+from rest_framework.decorators import api_view
+@api_view(['GET', 'POST'])
+def challenges_list(request):
+    if request.method == 'GET':
+        # straight away sort by status first
+        challenges = Challenges.objects.order_by('status').all()
+        username = request.POST.get("user", None)
 
+        # Filter by username
+        if username:
+            challenges = challenges.filter(user=username)
+        serializer = ChallengesSerializer(challenges, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = ChallengesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

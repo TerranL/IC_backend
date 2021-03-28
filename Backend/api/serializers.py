@@ -91,3 +91,14 @@ class FriendSerializer(serializers.ModelSerializer):
     class Meta:
         model = Friend
         fields = ('user', 'friend')
+
+from .models import Challenges
+class ChallengesSerializer(serializers.ModelSerializer):
+    # need to return primary key in response
+
+
+    class Meta:
+        model = Challenges
+        # fields = ['id', 'user', 'textbox', 'image', 'date_posted', 'status']
+
+        fields = ['id', 'proposer', 'user', 'title', 'description', 'image', 'date_posted', 'status']

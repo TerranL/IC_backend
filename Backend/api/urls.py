@@ -21,9 +21,6 @@ urlpatterns = [
     # Register Profile Details (images, date of birth ...)
     path('profile/',views.ProfileAPI.as_view() ,name='profile'),
 
-    #path('profile-list/', views.ProfileViewSet),
-
-    #path('friend-list/', views.FriendViewSet),
-
+    path('post_challenges/', views.challenges_list)
 ]
 urlpatterns += router.urls

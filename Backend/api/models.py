@@ -25,16 +25,21 @@ class Friend(models.Model):
     """
 
 class Challenges(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    textbox = models.TextField(max_length=100000, default="")
+    id = models.AutoField(primary_key=True)
+    proposer = models.TextField(max_length=10, default="")
+    # for now user is the one being challenged
+    user = models.TextField(max_length=10, default="")
+    title = models.TextField(max_length=100000, default="")
+    description = models.TextField(max_length=100000, default="")
     image = models.ImageField(upload_to='challenges', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    # additional fields
+    date_posted = models.DateTimeField(auto_now_add=True)
+    status = models.IntegerField(default=0)
 
-    def __str__(self):
-        return f"Post: {self.user.username} - {self.created_at}"
+    objects = models.Manager()
 
 class Status(models.Model):
-    challenge = models.OneToOneField(Challenges, on_delete=models.CASCADE)
+    #challenge = models.OneToOneField(Challenges, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     textbox = models.TextField(max_length=100000, default="")
     image = models.ImageField(upload_to='status', null=True, blank=True)
