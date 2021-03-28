@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'api.apps.ApiConfig', # API for receiving and sending data
     #'endpoints.apps.EndpointsConfig' # Machine Learning Pipeline
+
+    'knox',
 ]
 
 MIDDLEWARE = [
@@ -127,9 +129,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-#    'DEFAULT_AUTHENTICATION_CLASSES': [
-#        'rest_framework_simplejwt.authentication.JWTAuthentication',
-#    ]
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'knox.auth.TokenAuthentication'
+    ]
 }
-
-AUTH_USER_MODEL = 'api.User'

@@ -3,7 +3,7 @@ from .models import User, Friend, Challenges, Status, Categories, Profile
 from django.contrib.auth.admin import UserAdmin
 
 
-admin.site.register(User, UserAdmin)
+
 admin.site.register(Challenges)
 admin.site.register(Status)
 admin.site.register(Friend)
