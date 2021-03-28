@@ -36,16 +36,16 @@ class Friend(models.Model):
 
 
 class Challenges(models.Model):
-    # user 1 is the challenge initiator
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
-
+    id = models.AutoField(primary_key=True)
+    proposer = models.TextField(max_length=10, default="")
     # for now user is the one being challenged
     user = models.TextField(max_length=10, default="")
-    textbox = models.TextField(max_length=100000, default="")
+    title = models.TextField(max_length=100000, default="")
+    description = models.TextField(max_length=100000, default="")
     image = models.ImageField(upload_to='challenges', null=True, blank=True)
     # additional fields
     date_posted = models.DateTimeField(auto_now_add=True)
-    status = models.IntegerField(default=0)  # status: -2:declined, -1:failed, 0:pending, 1:ongoing, 2:completed
+    status = models.IntegerField(default=0)
 
     objects = models.Manager()
 
