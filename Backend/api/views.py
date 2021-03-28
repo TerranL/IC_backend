@@ -90,18 +90,20 @@ STATUS = {0: "pending", 1: "ongoing", 2: "completed", 3: "declined", 4: "failed"
 #     }
 #
 #     return response(request, template_name, context)
+def get_challenge(pk):
+    return Challenges.objects.get(pk=pk)
 
-
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'PUT'])
 def challenges_list(request):
     if request.method == 'GET':
         # straight away sort by status first
         challenges = Challenges.objects.order_by('status').all()
         username = request.POST.get("user", None)
-
+        # img_path = request.POST.get("image_path", False)
         # Filter by username
         if username:
             challenges = challenges.filter(user=username)
+
         serializer = ChallengesSerializer(challenges, many=True)
         return Response(serializer.data)
 
@@ -111,3 +113,15 @@ def challenges_list(request):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'PUT':
+        id = request.POST.get("id", None)
+        if id is None:
+            return
+        serializer = ChallengesSerializer(get_challenge(id), data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
