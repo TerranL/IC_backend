@@ -23,12 +23,6 @@ class isTheSameUser(BasePermission):
 class GetUserAPI(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = GetUserSerializer
-    """
-    permission_classes = [
-        permissions.IsAuthenticated,
-        isTheSameUser,
-    ]
-    """
     def get_object(self):
         return self.request.user
 

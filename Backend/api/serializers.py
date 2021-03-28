@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import authenticate
-from .models import User, Profile
+from .models import Profile, Friend
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.models import User
 
 #ProfileSerializer
 class ProfileSerializer(serializers.ModelSerializer):
@@ -15,7 +16,6 @@ class ProfileSerializer(serializers.ModelSerializer):
                 'write_only' : True,
             }
         }
-    
     def get_image_path(self ,obj):
         return obj.image.url
 
@@ -84,3 +84,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         user.save()
         return user
+"""
+class FriendSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Friend
+        fields = ('user', 'friend', 'created_at')
+        readonly_fields = 'created_at'
+
+class CustomUsersSerializer(HyperlinkedModelSerializer):
+    friends = FriendSerializer(many=True)  
+
+    class Meta:
+        models = User
+        fields = ('email', 'username', 'password1', 'friends')
+"""        

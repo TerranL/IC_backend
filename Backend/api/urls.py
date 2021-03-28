@@ -5,7 +5,7 @@ from knox.urls import views as knoxviews
 from django.urls import path
 
 urlpatterns = [
-    #
+    # Return user Data
     path('user/', views.GetUserAPI.as_view() ,name='get_user'),
     
     # Login page
@@ -13,11 +13,7 @@ urlpatterns = [
 
     # Register
     path('register/',views.RegisterAPI.as_view() ,name='register'),
-
-    #
-    #path('log-out/',knoxviews.LogoutView.as_view() ,name='log-out'),
     
+    # Register Profile Details (images, date of birth ...)
     path('profile/',views.ProfileAPI.as_view() ,name='profile'),
-
-
 ]
