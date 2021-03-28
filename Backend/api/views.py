@@ -142,10 +142,16 @@ def challenges_list(request):
         # straight away sort by status first
         challenges = Challenges.objects.order_by('status').all()
         username = request.POST.get("user", None)
-        # img_path = request.POST.get("image_path", False)
+        cid = request.POST.get("id", None)
+        render_image = request.POST.get("render_img", None)
+
         # Filter by username
         if username:
             challenges = challenges.filter(user=username)
+        # if this is a request to get the image
+        if cid and render_image:
+            image = Challenges.objects.get(id=cid).image
+            return HttpResponse(image, content_type="image/png")
 
         serializer = ChallengesSerializer(challenges, many=True)
         return Response(serializer.data)

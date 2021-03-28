@@ -101,4 +101,4 @@ class ChallengesSerializer(serializers.ModelSerializer):
         model = Challenges
         # fields = ['id', 'user', 'textbox', 'image', 'date_posted', 'status']
 
-        fields = ['id', 'proposer', 'user', 'title', 'description', 'image', 'date_posted', 'status']
+        fields = ['id', 'proposer', 'user', 'title', 'description', 'image', 'render_img', 'date_posted', 'status']
