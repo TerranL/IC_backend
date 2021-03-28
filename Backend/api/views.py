@@ -13,6 +13,7 @@ from .serializers import (
 
 from .models import Profile
 from rest_framework.permissions import BasePermission
+from django.http import HttpResponse
 
 
 class isTheSameUser(BasePermission):
@@ -172,3 +173,14 @@ def challenges_list(request):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET',])
+def get_image(request):
+    if request.method == 'GET':
+        cid = request.POST.get("id", None)
+        if cid:
+            image = Challenges.objects.get(id=cid).image
+            print(image.path)
+            return HttpResponse(image, content_type="image/png")
+
