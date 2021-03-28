@@ -1,98 +1,141 @@
-from django.shortcuts import render
-
-# Create your views here.
-
-from .serializer import ChallengesSerializer
 from django.contrib.auth.models import User
-from django.db.models import Count
-from rest_framework.exceptions import ValidationError
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.contrib import messages
-from rest_framework import generics
-
-from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework import generics, permissions
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from rest_framework.permissions import AllowAny
+from django.db.models import Q
+from .serializers import (
+    GetUserSerializer,
+    RegisterSerializer,
+    LoginSerializer,
+    ProfileSerializer,
+)
+
+from .models import Profile
+from rest_framework.permissions import BasePermission
 from django.http import HttpResponse
 
-# models
+
+class isTheSameUser(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user.id == obj.id
+
+
+class GetUserAPI(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = GetUserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
+class LoginAPI(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data['username']
+        user = User.objects.get(username=username)
+        return Response({'Login': 'Successful!'})
+
+
+class RegisterAPI(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = RegisterSerializer
+
+
+class ProfileAPI(generics.CreateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+
+# ------------------------------------------------#
+# TRIAL
+
+
+from .serializers import FriendSerializer
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin
+from .models import Friend
+from rest_framework import status, filters
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+
+
+class ProfileViewSet(ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+    # profile searching
+    search_fields = ['user__username', ]
+    filter_backends = [filters.SearchFilter]
+
+    # exclude from search result user himself & user friends
+    def get_queryset(self):
+        """
+        SEARCH USERS
+        """
+        user_friends_ids = Friend.objects.filter(user=self.request.user).values_list('friend_id', flat=True)
+        qs = self.queryset \
+            .exclude(user=self.request.user) \
+            .exclude(user_id__in=user_friends_ids)
+        return qs
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        LIST OF PROFILES
+        """
+        try:
+            user_id = kwargs.get('pk')
+            qs = self.queryset.get(user_id=user_id)
+            serializer = self.serializer_class(qs)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class FriendViewSet(ModelViewSet):
+    queryset = Friend.objects.all()
+    serializer_class = FriendSerializer
+    permission_classes = [AllowAny, ]
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        USER'S FRIEND LIST
+        """
+        try:
+            user_id = kwargs.get('pk')
+            user_friends = self.queryset.filter(user_id=user_id)
+            friends_profiles = [Profile.objects.get(user_id=friend.friend.id) for friend in user_friends]
+            data = ProfileSerializer(friends_profiles, many=True).data
+            return Response(data, status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        UNFRIEND USER
+        """
+        try:
+            user_id = kwargs.get('pk')
+            friend_id = request.data.get('friend_id')
+            user_friend = self.queryset.filter(Q(user_id=user_id) & Q(friend_id=friend_id))
+            user_friend.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 from .models import Challenges
-
-PAGINATION_COUNT = 3
-STATUS = {0: "pending", 1: "ongoing", 2: "completed", 3: "declined", 4: "failed", }
-
-
-# class PostListView(ListView):
-#     model = Challenges
-#     template_name = 'blog/home.html'
-#     context_object_name = 'challenges'
-#     ordering = ['-date_posted']
-#     paginate_by = PAGINATION_COUNT
-#
-#     def get_context_data(self, **kwargs):
-#         # Returns a dictionary representing the template context. data is the context here
-#         data = super().get_context_data(**kwargs)
-#
-#         all_users = []
-#
-#         # idk what is going on lol
-#         # data_counter = Challenges.objects.values('user')\
-#         #     .annotate(author_count=Count('author'))\
-#         #     .order_by('-author_count')[:6]
-#
-#         data_counter = Challenges.objects.all()
-#
-#         for aux in data_counter:
-#             all_users.append(User.objects.filter(pk=aux['author']).first())
-#
-#         print(all_users, file=sys.stderr)
-#         return data
-#
-#     def get_queryset(self):
-#         user = self.request.user
-#         qs = Follow.objects.filter(user=user)
-#         follows = [user]
-#         for obj in qs:
-#             follows.append(obj.follow_user)
-#         return Post.objects.filter(author__in=follows).order_by('-date_posted')
+from .serializers import ChallengesSerializer
+from rest_framework.decorators import api_view
 
 
-#
-# def add_post_view(request):
-#     if request.method == "POST":
-#         form = PostForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             obj = form.save(commit=False)
-#             obj.user = request.user
-#             obj.save()
-#             messages.success(request, "Challenge post has been created.")
-#             return redirect("/posts")
-#     form = PostForm()
-#     context = {
-#         "form": form
-#     }
-#     return render(request, template_name, context)
-#
-#
-# def display_posts_view(request):
-#     posts = Challenges.objects.get_posts(False)
-#     challenge_status = []
-#     for post in posts:
-#         challenge_status.append(STATUS[post.status])
-#
-#     # zip whatever you wanna display here
-#     master_list = zip(posts, challenge_status)
-#     context = {
-#         "master": master_list
-#     }
-#
-#     return response(request, template_name, context)
 def get_challenge(pk):
     return Challenges.objects.get(pk=pk)
+
 
 @api_view(['GET', 'POST', 'PUT'])
 def challenges_list(request):
@@ -131,4 +174,13 @@ def challenges_list(request):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET',])
+def get_image(request):
+    if request.method == 'GET':
+        cid = request.POST.get("id", None)
+        if cid:
+            image = Challenges.objects.get(id=cid).image
+            print(image.path)
+            return HttpResponse(image, content_type="image/png")
 
