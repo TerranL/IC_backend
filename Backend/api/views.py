@@ -46,8 +46,6 @@ class ProfileAPI(generics.CreateAPIView):
 
 #------------------------------------------------#
 # TRIAL
-
-
 from .serializers import FriendSerializer
 from rest_framework.viewsets import ModelViewSet, GenericViewSet   
 from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin
@@ -62,16 +60,12 @@ class ProfileViewSet(ModelViewSet):
     # profile searching
     search_fields = ['user__username',]
     filter_backends = [filters.SearchFilter]
+    permission_classes =[AllowAny,]
 
     # exclude from search result user himself & user friends
     def get_queryset(self):
-        """
-        SEARCH USERS
-        """
-        user_friends_ids = Friend.objects.filter(user=self.request.user).values_list('friend_id', flat=True)
-        qs = self.queryset\
-            .exclude(user=self.request.user)\
-            .exclude(user_id__in=user_friends_ids)
+        user_friends_ids = Friend.objects.filter(user=self.request.user.id).values_list('friend_id', flat=True)
+        qs = self.queryset
         return qs
 
     def retrieve(self, request, *args, **kwargs):
