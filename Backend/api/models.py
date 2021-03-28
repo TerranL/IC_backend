@@ -43,7 +43,7 @@ class Challenges(models.Model):
     title = models.TextField(max_length=100000, default="")
     description = models.TextField(max_length=100000, default="")
     image = models.ImageField(upload_to='challenges', null=True, blank=True)
-    # image_path = models.BooleanField()
+    render_img = models.BooleanField(default=False)
     # additional fields
     date_posted = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(default=0)
