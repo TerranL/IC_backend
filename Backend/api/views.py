@@ -49,9 +49,6 @@ class ProfileAPI(generics.CreateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
-
-# ------------------------------------------------#
-# TRIAL
 from .serializers import FriendSerializer
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin
