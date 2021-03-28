@@ -8,8 +8,6 @@ from django.urls import path
 
 urlpatterns = [
     path('post_challenges/', views.challenges_list)
-
-    
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

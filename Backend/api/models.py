@@ -36,29 +36,18 @@ class Friend(models.Model):
 
 
 class Challenges(models.Model):
-
     # user 1 is the challenge initiator
     # user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    # for now user is the one being challenged
+    user = models.TextField(max_length=10, default="")
     textbox = models.TextField(max_length=100000, default="")
     image = models.ImageField(upload_to='challenges', null=True, blank=True)
     # additional fields
     date_posted = models.DateTimeField(auto_now_add=True)
-    status = models.IntegerField(default=0) # status: -2:declined, -1:failed, 0:pending, 1:ongoing, 2:completed
+    status = models.IntegerField(default=0)  # status: -2:declined, -1:failed, 0:pending, 1:ongoing, 2:completed
 
     objects = models.Manager()
-
-
-
-    # def save(self):
-    #     super().save()
-    #     if self.image:
-    #         img = Image.open(self.image.path)
-    #
-    #         if img.height > 300 or img.width > 300:
-    #             output_size = (600, 600)
-    #             img.thumbnail(output_size)
-    #             img.save(self.img.path)
 
 
 class Status(models.Model):

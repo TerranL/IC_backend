@@ -6,4 +6,4 @@ class ChallengesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenges
         # fields = ['id', 'user', 'textbox', 'image', 'date_posted', 'status']
-        fields =['textbox', 'image', 'status']
+        fields =['user', 'textbox', 'image', 'status']

@@ -12,6 +12,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from rest_framework import generics
 
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -21,7 +22,7 @@ from rest_framework.response import Response
 from .models import Challenges
 
 PAGINATION_COUNT = 3
-STATUS = {-2: "declined", -1: "failed", 0: "pending", 1: "ongoing", 2: "completed"}
+STATUS = {0: "pending", 1: "ongoing", 2: "completed", 3: "declined", 4: "failed", }
 
 
 # class PostListView(ListView):
@@ -94,7 +95,13 @@ STATUS = {-2: "declined", -1: "failed", 0: "pending", 1: "ongoing", 2: "complete
 @api_view(['GET', 'POST'])
 def challenges_list(request):
     if request.method == 'GET':
-        challenges = Challenges.objects.all()
+        # straight away sort by status first
+        challenges = Challenges.objects.order_by('status').all()
+        username = request.POST.get("user", None)
+
+        # Filter by username
+        if username:
+            challenges = challenges.filter(user=username)
         serializer = ChallengesSerializer(challenges, many=True)
         return Response(serializer.data)
 
