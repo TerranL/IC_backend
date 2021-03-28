@@ -1,5 +1,5 @@
-from django.contrib.auth.models import User 
-from rest_framework import generics ,permissions
+from django.contrib.auth.models import User
+from rest_framework import generics, permissions
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
@@ -11,16 +11,19 @@ from .serializers import (
     ProfileSerializer,
 )
 
-from .models import Profile 
+from .models import Profile
 from rest_framework.permissions import BasePermission
+
+
 class isTheSameUser(BasePermission):
     def has_object_permission(self, request, view, obj):
-        return request.user.id==obj.id
+        return request.user.id == obj.id
 
 
 class GetUserAPI(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = GetUserSerializer
+
     def get_object(self):
         return self.request.user
 
@@ -28,37 +31,41 @@ class GetUserAPI(generics.RetrieveAPIView):
 class LoginAPI(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
-    def post(self ,request , *args ,**kwargs):
-        serializer = self.get_serializer(data = request.data)
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data['username']
         user = User.objects.get(username=username)
         return Response({'Login': 'Successful!'})
+
 
 class RegisterAPI(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
 
+
 class ProfileAPI(generics.CreateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
-#------------------------------------------------#
+
+# ------------------------------------------------#
 # TRIAL
 from .serializers import FriendSerializer
-from rest_framework.viewsets import ModelViewSet, GenericViewSet   
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin
 from .models import Friend
 from rest_framework import status, filters
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+
 
 class ProfileViewSet(ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     # profile searching
-    search_fields = ['user__username',]
+    search_fields = ['user__username', ]
     filter_backends = [filters.SearchFilter]
     permission_classes =[AllowAny,]
 
@@ -81,10 +88,12 @@ class ProfileViewSet(ModelViewSet):
             print(e)
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
 class FriendViewSet(ModelViewSet):
     queryset = Friend.objects.all()
     serializer_class = FriendSerializer
-    permission_classes = [AllowAny,]
+    permission_classes = [AllowAny, ]
+
     def retrieve(self, request, *args, **kwargs):
         """
         USER'S FRIEND LIST
@@ -111,19 +120,27 @@ class FriendViewSet(ModelViewSet):
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
 from .models import Challenges
 from .serializers import ChallengesSerializer
 from rest_framework.decorators import api_view
-@api_view(['GET', 'POST'])
+
+
+def get_challenge(pk):
+    return Challenges.objects.get(pk=pk)
+
+
+@api_view(['GET', 'POST', 'PUT'])
 def challenges_list(request):
     if request.method == 'GET':
         # straight away sort by status first
         challenges = Challenges.objects.order_by('status').all()
         username = request.POST.get("user", None)
-
+        # img_path = request.POST.get("image_path", False)
         # Filter by username
         if username:
             challenges = challenges.filter(user=username)
+
         serializer = ChallengesSerializer(challenges, many=True)
         return Response(serializer.data)
 
@@ -134,3 +151,12 @@ def challenges_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    elif request.method == 'PUT':
+        id = request.POST.get("id", None)
+        if id is None:
+            return
+        serializer = ChallengesSerializer(get_challenge(id), data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
