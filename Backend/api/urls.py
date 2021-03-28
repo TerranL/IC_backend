@@ -1,8 +1,12 @@
 from django.conf.urls import url, include
 from . import views
-from knox.urls import views as knoxviews
+from rest_framework.routers import DefaultRouter
 
 from django.urls import path
+
+router = DefaultRouter()
+router.register(r'profile-list', views.ProfileViewSet )
+router.register(r'friend-list', views.FriendViewSet)
 
 urlpatterns = [
     # Return user Data
@@ -16,4 +20,10 @@ urlpatterns = [
     
     # Register Profile Details (images, date of birth ...)
     path('profile/',views.ProfileAPI.as_view() ,name='profile'),
+
+    #path('profile-list/', views.ProfileViewSet),
+
+    #path('friend-list/', views.FriendViewSet),
+
 ]
+urlpatterns += router.urls

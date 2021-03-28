@@ -5,19 +5,21 @@ from .models import Profile, Friend
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import User
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'username',)
+
+
 #ProfileSerializer
 class ProfileSerializer(serializers.ModelSerializer):
-    image_path = serializers.SerializerMethodField()
+    user = UserSerializer(partial=True)
+    avatar = serializers.URLField() 
+    
     class Meta:
         model = Profile
-        fields = ['user','avatar','image_path',]
-        extra_kwargs = {
-            'image': {
-                'write_only' : True,
-            }
-        }
-    def get_image_path(self ,obj):
-        return obj.image.url
+        fields = ['user','avatar','date_of_birth',]
+
 
 #userInfoSerializer
 class GetUserSerializer(serializers.ModelSerializer):
@@ -84,17 +86,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         user.save()
         return user
-"""
-class FriendSerializer(serializers.HyperlinkedModelSerializer):
+
+class FriendSerializer(serializers.ModelSerializer):
     class Meta:
         model = Friend
-        fields = ('user', 'friend', 'created_at')
-        readonly_fields = 'created_at'
-
-class CustomUsersSerializer(HyperlinkedModelSerializer):
-    friends = FriendSerializer(many=True)  
-
-    class Meta:
-        models = User
-        fields = ('email', 'username', 'password1', 'friends')
-"""        
+        fields = ('user', 'friend')

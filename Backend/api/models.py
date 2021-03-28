@@ -4,12 +4,12 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 class Profile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to='profile_pic/', null=True, blank=True,
                                default="default/default_avatar.png")
     date_of_birth = models.DateField() 
     created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Profile - User: {self.user.username} - E-Mail: {self.user.email}"
@@ -19,10 +19,10 @@ class Friend(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friend_creator")
     friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friends")
     created_at = models.DateField(auto_now_add=True)
-
+    """
     def __str__(self):
         return f"Friendship: {self.user.username} - {self.friend.username}"
-    
+    """
 
 class Challenges(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
