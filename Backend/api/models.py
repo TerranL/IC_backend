@@ -53,7 +53,7 @@ class Challenges(models.Model):
 
 class Status(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    textbox = models.TextField(max_length=100000)
+    textbox = models.TextField(max_length=100000, default="")
     image = models.ImageField(upload_to='status', null=True, blank=True)
 
 
